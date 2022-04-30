@@ -12,6 +12,7 @@ namespace Noob_SeaBattle
         const int height = 2;
         const int maxAmountOfShipCells = 1 + (width * height) / 5;
         const string letters = "abcdefghijklmnopqrstuvwxyz";
+       
         static Random rnd = new Random();
 
         static void Main(string[] args)
@@ -32,7 +33,8 @@ namespace Noob_SeaBattle
             {
                 ShowBothFields(playerField, enemyField);
                 (int x, int y) = GetPositionOfPlayerShoot(enemyField, enemyShipCount);
-                Shoot(x, y, enemyField, enemyShipCount, out enemyShipCount);
+                Shoot(x, y, enemyField, enemyShipCount, out enemyShipCount, out bool haveMissed);
+                if (!haveMissed) return;
                 EnemyShootBack(playerField, playerShipCount, out playerShipCount);
                 Console.Clear();
             }
@@ -60,7 +62,7 @@ namespace Noob_SeaBattle
                 int x = rnd.Next(0, width);
                 int y = rnd.Next(0, height);
 
-                if (field[x, y] != '*') field[x, y] = '*';
+                if (field[x, y] != ' ') field[x, y] = '*';
                 else
                 {
                     while(field[x, y] == '*')
@@ -189,15 +191,18 @@ namespace Noob_SeaBattle
             return true;
         }
 
-        static void Shoot(int x, int y, char[,] enemyField, int enemyShipCount, out int newEnemyShipCount)
+        static void Shoot(int x, int y, char[,] enemyField, int enemyShipCount, out int newEnemyShipCount, out bool haveMissed)
         {
             newEnemyShipCount = enemyShipCount;
             if (enemyField[x, y] == '*')
             {
                 enemyField[x, y] = 'X';
                 newEnemyShipCount -= 1;
+                haveMissed = false;
+                return;
             }
             else if (enemyField[x, y] == ' ') enemyField[x, y] = '#';
+            haveMissed = true;
         }
 
         static void EnemyShootBack(char[,] playerField, int playerShipCount, out int newPlayerShipCount)
