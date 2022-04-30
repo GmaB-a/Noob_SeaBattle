@@ -8,10 +8,10 @@ namespace Noob_SeaBattle
 {
     class Program
     {
-        static int width = 3;
-        static int height = 3;
-        static int maxAmountOfShipCells = 1 + (width * height) / 5;
-        static string letters = "abcdefghijklmnopqrstuvwxyz";
+        const int width = 2;
+        const int height = 2;
+        const int maxAmountOfShipCells = 1 + (width * height) / 5;
+        const string letters = "abcdefghijklmnopqrstuvwxyz";
         static Random rnd = new Random();
 
         static void Main(string[] args)
@@ -31,7 +31,8 @@ namespace Noob_SeaBattle
             while (!IsGameEnd(playerShipCount, enemyShipCount))
             {
                 ShowBothFields(playerField, enemyField);
-                GetAnswer(enemyField, enemyShipCount, out enemyShipCount);
+                (int x, int y) = GetPositionOfPlayerShoot(enemyField, enemyShipCount);
+                Shoot(x, y, enemyField, enemyShipCount, out enemyShipCount);
                 EnemyShootBack(playerField, playerShipCount, out playerShipCount);
                 Console.Clear();
             }
@@ -85,7 +86,7 @@ namespace Noob_SeaBattle
             Console.WriteLine();
             if (height >= 10)
             {
-                for (int y = 0; y < (height - 1); y++)
+                for (int y = 0; y < 9; y++)
                 {
                     Console.Write(" " + (y + 1) + " ");
                     WriteThisChar(playerField, width, y, false);
@@ -93,7 +94,7 @@ namespace Noob_SeaBattle
                     WriteThisChar(enemyField, width, y, true);
                     Console.WriteLine();
                 }
-                for (int y = (height - 1); y < height; y++)
+                for (int y = 9; y < height; y++)
                 {
                     Console.Write(y + 1 + " ");
                     WriteThisChar(playerField, width, y, false);
@@ -102,7 +103,7 @@ namespace Noob_SeaBattle
                     Console.WriteLine();
                 }
             }
-            else
+            else if (height < 10)
             {
                 for (int y = 0; y < height; y++)
                 {
@@ -137,41 +138,55 @@ namespace Noob_SeaBattle
             }
         }
 
-        static void GetAnswer(char[,] enemyField, int enemyShipCount, out int newEnemyShipCount)
+        static (int, int) GetPositionOfPlayerShoot(char[,] enemyField, int enemyShipCount)
         {
-            Console.WriteLine("Write a number");
+            Console.WriteLine("write a number");
             string answerYinString = Console.ReadLine();
-            int.TryParse(answerYinString, out int answerY);
+            int answerY;
+            int.TryParse(answerYinString, out answerY);
             answerY -= 1;
-            if (answerY < 0 || answerY >= height)
-            {
-                GetAnswer(enemyField, enemyShipCount, out newEnemyShipCount);
-            }
-
-            Console.WriteLine("Write a letter");
+            Console.WriteLine("write a letter");
             char answerXinChar = Console.ReadKey().KeyChar;
-            Console.WriteLine();
-            if (!Char.IsLetter(answerXinChar))
+            int answerX = width;
+            for (int i = 0; i < letters.Length; i++)
             {
-                GetAnswer(enemyField, enemyShipCount, out newEnemyShipCount);
-            }
-            
-            int answerX = -1;
-            for(int i = 0; i < letters.Length; i++)
-            {
-                if(answerXinChar == letters[i])
+                if (answerXinChar == letters[i])
                 {
                     answerX = i;
                     break;
                 }
             }
-
-            if(answerX > width)
+            while (!CheckIfShootablePosition(answerX, answerY, enemyField))
             {
-                GetAnswer(enemyField, enemyShipCount, out newEnemyShipCount);
-            }
+                Console.WriteLine();
+                Console.WriteLine("Write a number");
+                answerYinString = Console.ReadLine();
+                int.TryParse(answerYinString, out answerY);
+                answerY -= 1;
 
-            Shoot(answerX, answerY, enemyField, enemyShipCount, out newEnemyShipCount);
+                Console.WriteLine("Write a letter");
+                Console.WriteLine();
+                answerXinChar = Console.ReadKey().KeyChar;
+                for (int i = 0; i < letters.Length; i++)
+                {
+                    if(answerXinChar == letters[i])
+                    {
+                        answerX = i;
+                        break;
+                    }
+                }
+            }
+            return (answerX, answerY);
+        }
+
+        static bool CheckIfShootablePosition(int answerX, int answerY, char[,] enemyField)
+        {
+            if (answerY < 0) return false;
+            else if (answerY >= height) return false;
+            else if (answerX >= width) return false;
+            else if (enemyField[answerX, answerY] == 'X') return false;
+            else if (enemyField[answerX, answerY] == '#') return false;
+            return true;
         }
 
         static void Shoot(int x, int y, char[,] enemyField, int enemyShipCount, out int newEnemyShipCount)
@@ -183,11 +198,6 @@ namespace Noob_SeaBattle
                 newEnemyShipCount -= 1;
             }
             else if (enemyField[x, y] == ' ') enemyField[x, y] = '#';
-            else
-            {
-                Console.WriteLine("bruh");
-                GetAnswer(enemyField, enemyShipCount, out newEnemyShipCount);
-            }
         }
 
         static void EnemyShootBack(char[,] playerField, int playerShipCount, out int newPlayerShipCount)
