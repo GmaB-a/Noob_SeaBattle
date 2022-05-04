@@ -19,12 +19,7 @@ namespace Noob_SeaBattle
         static Random rnd = new Random();
         public void Play()
         {
-            Player player1 = CreatePlayer(1);
-            WriteIntro();
-            string playModeInString = Console.ReadLine();
-            Player player2 = CreatePlayer(2);
-            GetPlayMode(playModeInString, player1, player2, out player1, out player2);
-            Console.Clear();
+            WriteIntro(out Player player1, out Player player2);
             Player currentPlayer = player1;
             Player notCurrentPlayer = player2;
             while (!IsGameEnd(player1.shipCount, player2.shipCount))
@@ -46,14 +41,19 @@ namespace Noob_SeaBattle
             }
         }
 
-        void WriteIntro()
+        void WriteIntro(out Player player1, out Player player2)
         {
+            player1 = CreatePlayer(1);
             Console.WriteLine("Ships: *");
             Console.WriteLine("Broken ship: Х");
             Console.WriteLine("Place, where you have already shot, but missed: #");
             Console.WriteLine("Answer: first write a number representing height or y; after that write a letter, representing width or x");
             Console.WriteLine("Both numbers and letters you can see when the game has started");
             Console.WriteLine("Press either 1 or 2 for different modes; 1 - you vs bot; 2 - you vs another player");
+            string playModeInString = Console.ReadLine();
+            player2 = CreatePlayer(2);
+            GetPlayMode(playModeInString, player1, player2, out player1, out player2);
+            Console.Clear();
         }
 
         Player CreatePlayer(int playerNumber)
@@ -144,7 +144,6 @@ namespace Noob_SeaBattle
         }
         void WriteThisLetter(int width)
         {
-
             for (int x = 0; x < width; x++)
             {
                 Console.Write(letters[x]);
