@@ -1,4 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
 namespace Noob_SeaBattle
 {
     struct Player
@@ -15,6 +20,14 @@ namespace Noob_SeaBattle
         const int height = 4;
         const int maxAmountOfShipCells = 1 + (width * height) / 5;
         const string letters = "abcdefghijklmnopqrstuvwxyz";
+
+        public enum fieldCells
+        {
+            empty = ' ',
+            ship = '*',
+            miss = '#',
+            brokenShip = 'X'
+        }
 
         static Random rnd = new Random();
         public void Play()
@@ -44,9 +57,9 @@ namespace Noob_SeaBattle
         void WriteIntro(out Player player1, out Player player2)
         {
             player1 = CreatePlayer(1);
-            Console.WriteLine("Ships: *");
-            Console.WriteLine("Broken ship: Х");
-            Console.WriteLine("Place, where you have already shot, but missed: #");
+            Console.WriteLine("Ships: " + fieldCells.ship);
+            Console.WriteLine("Broken ship: " + fieldCells.brokenShip);
+            Console.WriteLine("Place, where you have already shot, but missed: " + fieldCells.miss);
             Console.WriteLine("Answer: first write a number representing height or y; after that write a letter, representing width or x");
             Console.WriteLine("Both numbers and letters you can see when the game has started");
             Console.WriteLine("Press either 1 or 2 for different modes; 1 - you vs bot; 2 - you vs another player");
@@ -82,7 +95,7 @@ namespace Noob_SeaBattle
             {
                 for (int x = 0; x < width; x++)
                 {
-                    field[x, y] = ' ';
+                    field[x, y] = (char)fieldCells.empty;
                 }
             }
 
@@ -97,15 +110,15 @@ namespace Noob_SeaBattle
                 int x = rnd.Next(0, width);
                 int y = rnd.Next(0, height);
 
-                if (field[x, y] != ' ') field[x, y] = '*';
+                if (field[x, y] != (char)fieldCells.empty) field[x, y] = (char)fieldCells.ship;
                 else
                 {
-                    while (field[x, y] == '*')
+                    while (field[x, y] == (char)fieldCells.ship)
                     {
                         x = rnd.Next(0, width);
                         y = rnd.Next(0, height);
                     }
-                    field[x, y] = '*';
+                    field[x, y] = (char)fieldCells.ship;
                 }
             }
             return field;
@@ -135,7 +148,7 @@ namespace Noob_SeaBattle
             {
                 if (!isYou)
                 {
-                    if (field[x, y] == '*') Console.Write(' ');
+                    if (field[x, y] == (char)fieldCells.ship) Console.Write((char)fieldCells.empty);
                     else Console.Write(field[x, y]);
                     //Console.Write(field[x, y]);
                 }
@@ -196,22 +209,22 @@ namespace Noob_SeaBattle
             if (answerY < 0) return false;
             else if (answerY >= height) return false;
             else if (answerX >= width) return false;
-            else if (enemyField[answerX, answerY] == 'X') return false;
-            else if (enemyField[answerX, answerY] == '#') return false;
+            else if (enemyField[answerX, answerY] == (char)fieldCells.brokenShip) return false;
+            else if (enemyField[answerX, answerY] == (char)fieldCells.miss) return false;
             return true;
         }
 
         void Shoot(int x, int y, char[,] enemyField, int enemyShipCount, out int newEnemyShipCount, out bool haveMissed)
         {
             newEnemyShipCount = enemyShipCount;
-            if (enemyField[x, y] == '*')
+            if (enemyField[x, y] == (char)fieldCells.ship)
             {
-                enemyField[x, y] = 'X';
+                enemyField[x, y] = (char)fieldCells.brokenShip;
                 newEnemyShipCount -= 1;
                 haveMissed = false;
                 return;
             }
-            else if (enemyField[x, y] == ' ') enemyField[x, y] = '#';
+            else if (enemyField[x, y] == (char)fieldCells.empty) enemyField[x, y] = (char)fieldCells.miss;
             haveMissed = true;
         }
 
