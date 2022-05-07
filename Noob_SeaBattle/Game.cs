@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Noob_SeaBattle
 {
-    struct Player
+    class Player
     {
         public char[,] field;
         public int shipCount;
@@ -16,10 +16,12 @@ namespace Noob_SeaBattle
 
     internal class Game
     {
-        const int width = 4;
-        const int height = 4;
-        const int maxAmountOfShipCells = 1 + (width * height) / 5;
-        const string letters = "abcdefghijklmnopqrstuvwxyz";
+        const int width = 2;
+        const int height = 2;
+        int maxAmountOfShipCells;
+        string letters = "abcdefghijklmnopqrstuvwxyz";
+        Player player1;
+        Player player2;
 
         public enum fieldCells
         {
@@ -29,32 +31,33 @@ namespace Noob_SeaBattle
             brokenShip = 'X'
         }
 
-        static Random rnd = new Random();
+        Random rnd = new Random();
         public void Play()
         {
-            WriteIntro(out Player player1, out Player player2);
+            maxAmountOfShipCells = 1 + (width * height) / 5;
+            Intro(out player1, out player2);
             Player currentPlayer = player1;
             Player notCurrentPlayer = player2;
-            while (!IsGameEnd(player1.shipCount, player2.shipCount))
+            while (!IsGameEnd())
             {
-                ShowBothFields(player1, player2, currentPlayer);
+                ShowBothFields(currentPlayer);
                 bool haveMissed;
+                int x, y;
                 if (!currentPlayer.isBot)
                 {
-                    (int x, int y) = GetPlayerShootPosition(notCurrentPlayer.field);
-                    Shoot(x, y, notCurrentPlayer.field, notCurrentPlayer.shipCount, out notCurrentPlayer.shipCount, out haveMissed);
+                    (x, y) = GetPlayerShootPosition(notCurrentPlayer.field);
                 }
                 else
                 {
-                    (int x, int y) = GetRandomShootPosition(notCurrentPlayer.field);
-                    Shoot(x, y, notCurrentPlayer.field, notCurrentPlayer.shipCount, out notCurrentPlayer.shipCount, out haveMissed);
+                    (x, y) = GetRandomShootPosition(notCurrentPlayer.field);
                 }
-                if (haveMissed) (currentPlayer, notCurrentPlayer) = ChangeCurrentPlayer(player1, player2, currentPlayer, notCurrentPlayer);
+                haveMissed = ShootAndCheckMiss(x, y, notCurrentPlayer, out notCurrentPlayer.shipCount);
+                if (haveMissed) (currentPlayer, notCurrentPlayer) = ChangeCurrentPlayer(currentPlayer, notCurrentPlayer);
                 Console.Clear();
             }
         }
 
-        void WriteIntro(out Player player1, out Player player2)
+        void Intro(out Player player1, out Player player2)
         {
             player1 = CreatePlayer(1);
             Console.WriteLine("Ships: " + fieldCells.ship);
@@ -65,7 +68,7 @@ namespace Noob_SeaBattle
             Console.WriteLine("Press either 1 or 2 for different modes; 1 - you vs bot; 2 - you vs another player");
             string playModeInString = Console.ReadLine();
             player2 = CreatePlayer(2);
-            GetPlayMode(playModeInString, player1, player2, out player1, out player2);
+            GetPlayMode(playModeInString, out player1, out player2);
             Console.Clear();
         }
 
@@ -78,7 +81,7 @@ namespace Noob_SeaBattle
             return player;
         }
 
-        void GetPlayMode(string playModeInString, Player player1, Player player2, out Player newPlayer1, out Player newPlayer2)
+        void GetPlayMode(string playModeInString, out Player newPlayer1, out Player newPlayer2)
         {
             newPlayer1 = player1;
             newPlayer2 = player2;
@@ -124,7 +127,7 @@ namespace Noob_SeaBattle
             return field;
         }
 
-        void ShowBothFields(Player player1, Player player2, Player currentPlayer)
+        void ShowBothFields(Player currentPlayer)
         {
             Console.Write("   ");
             WriteThisLetter(width);
@@ -135,14 +138,14 @@ namespace Noob_SeaBattle
             {
                 if (y < 9) Console.Write(" ");
                 Console.Write(y + 1 + " ");
-                WriteThisChar(player1.field, width, y, player1.playerNumber == currentPlayer.playerNumber);
+                WriteThisChar(player1.field, y, player1.playerNumber == currentPlayer.playerNumber);
                 Console.Write(" | ");
-                WriteThisChar(player2.field, width, y, player2.playerNumber == currentPlayer.playerNumber);
+                WriteThisChar(player2.field, y, player2.playerNumber == currentPlayer.playerNumber);
                 Console.WriteLine();
             }
         }
 
-        void WriteThisChar(char[,] field, int width, int y, bool isYou)
+        void WriteThisChar(char[,] field, int y, bool isYou)
         {
             for (int x = 0; x < width; x++)
             {
@@ -214,18 +217,17 @@ namespace Noob_SeaBattle
             return true;
         }
 
-        void Shoot(int x, int y, char[,] enemyField, int enemyShipCount, out int newEnemyShipCount, out bool haveMissed)
+        bool ShootAndCheckMiss(int x, int y, Player enemy, out int newEnemyShipCount)
         {
-            newEnemyShipCount = enemyShipCount;
-            if (enemyField[x, y] == (char)fieldCells.ship)
+            newEnemyShipCount = enemy.shipCount;
+            if (enemy.field[x, y] == (char)fieldCells.ship)
             {
-                enemyField[x, y] = (char)fieldCells.brokenShip;
+                enemy.field[x, y] = (char)fieldCells.brokenShip;
                 newEnemyShipCount -= 1;
-                haveMissed = false;
-                return;
+                return false;
             }
-            else if (enemyField[x, y] == (char)fieldCells.empty) enemyField[x, y] = (char)fieldCells.miss;
-            haveMissed = true;
+            else if (enemy.field[x, y] == (char)fieldCells.empty) enemy.field[x, y] = (char)fieldCells.miss;
+            return true;
         }
 
         (int, int) GetRandomShootPosition(char[,] enemyField)
@@ -240,7 +242,7 @@ namespace Noob_SeaBattle
             return (x, y);
         }
 
-        (Player, Player) ChangeCurrentPlayer(Player player1, Player player2, Player currentPlayer, Player notCurrentPlayer)
+        (Player, Player) ChangeCurrentPlayer(Player currentPlayer, Player notCurrentPlayer)
         {
             if (currentPlayer.playerNumber == player1.playerNumber)
             {
@@ -255,14 +257,14 @@ namespace Noob_SeaBattle
             return (currentPlayer, notCurrentPlayer);
         }
 
-        bool IsGameEnd(int player1ShipCount, int player2ShipCount)
+        bool IsGameEnd()
         {
-            if (player1ShipCount == 0)
+            if (player1.shipCount == 0)
             {
                 Console.WriteLine("Player2 won!");
                 return true;
             }
-            if (player2ShipCount == 0)
+            if (player2.shipCount == 0)
             {
                 Console.WriteLine("Player1 won!");
                 return true;
