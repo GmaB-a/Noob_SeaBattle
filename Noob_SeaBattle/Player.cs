@@ -25,13 +25,11 @@ namespace Noob_SeaBattle
             brokenShip = Game.fieldCells.brokenShip
         }
 
-        public Player CreatePlayer()
+        public void CreatePlayer()
         {
             rnd = new Random();
-            Player player = new Player();
-            player.field = CreateOneField();
-            player.shipCount = maxAmountOfShipCells;
-            return player;
+            field = CreateOneField();
+            shipCount = maxAmountOfShipCells;
         }
 
 

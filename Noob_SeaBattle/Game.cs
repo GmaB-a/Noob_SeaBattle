@@ -30,10 +30,10 @@ namespace Noob_SeaBattle
 
         public void Play()
         {
-            player1 = player1.CreatePlayer();
+            player1.CreatePlayer();
             Intro();
             bool isOnlyBots = GetPlayMode();
-            player2 = player2.CreatePlayer();
+            player2.CreatePlayer();
             (currentPlayer, notCurrentPlayer) = (player1, player2);
             while (!IsGameEnd())
             {
@@ -49,7 +49,7 @@ namespace Noob_SeaBattle
                     (x, y) = GetRandomShootPosition();
                 }
                 haveMissed = ShootAndCheckMiss(x, y);
-                if (!currentPlayer.isPlayer) Console.ReadLine();
+                if (isOnlyBots) Console.ReadLine();
                 if (haveMissed) (currentPlayer, notCurrentPlayer) = (notCurrentPlayer, currentPlayer);
                 Console.Clear();
             }
@@ -83,8 +83,10 @@ namespace Noob_SeaBattle
             {
                 case 0: (player1.isPlayer, player2.isPlayer) = (false, false); break;
                 case 1:
-                    if (rnd.Next(0,100) < 50) (player1.isPlayer, player2.isPlayer) = (true, false);
-                    else (player1.isPlayer, player2.isPlayer) = (false, true);
+                    if (rnd.Next(0,100) < 50) 
+                        (player1.isPlayer, player2.isPlayer) = (true, false);
+                    else 
+                        (player1.isPlayer, player2.isPlayer) = (false, true);
                     break;
                 case 2: (player1.isPlayer, player2.isPlayer) = (true, true); break;
             }
@@ -127,7 +129,6 @@ namespace Noob_SeaBattle
         {
             if(!player1.isPlayer && !player2.isPlayer) return true;
             if (player != currentPlayer) return false;
-
             return true;
         }
 
