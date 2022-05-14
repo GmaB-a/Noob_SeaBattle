@@ -6,11 +6,19 @@ using System.Threading.Tasks;
 
 namespace Noob_SeaBattle
 {
-    internal class Game
+    enum fieldCells
     {
-        public const int width = 5;
-        public const int height = 5;
-        public const int maxAmountOfShipCells = 1 + (width * height) / 5;
+        empty = ' ',
+        ship = '*',
+        miss = '#',
+        brokenShip = 'X'
+    }
+
+    public class Game
+    {
+        public int width = 5;
+        public int height = 5;
+        public int maxAmountOfShipCells;
         string letters = "abcdefghijklmnopqrstuvwxyz";
 
         Player player1 = new Player();
@@ -20,24 +28,19 @@ namespace Noob_SeaBattle
 
         Random rnd = new Random();
 
-        public enum fieldCells
+        public void Play(int gameMode)
         {
-            empty = ' ',
-            ship = '*',
-            miss = '#',
-            brokenShip = 'X'
-        }
-
-        public void Play()
-        {
-            player1.CreatePlayer();
-            Intro();
-            bool isOnlyBots = GetPlayMode();
-            player2.CreatePlayer();
+            maxAmountOfShipCells = 1 + (width * height) / 5;
+            player1.CreatePlayer(width, height, maxAmountOfShipCells);
+            Console.WriteLine("Press Enter to Start Game");
+            Console.ReadLine();
+            Console.Clear();
+            player2.CreatePlayer(width, height, maxAmountOfShipCells);
+            SetPlayMode(gameMode);
             (currentPlayer, notCurrentPlayer) = (player1, player2);
             while (!IsGameEnd())
             {
-                ShowBothFields(currentPlayer);
+                ShowBothFields();
                 bool haveMissed;
                 int x, y;
                 if (currentPlayer.isPlayer)
@@ -49,32 +52,10 @@ namespace Noob_SeaBattle
                     (x, y) = GetRandomShootPosition();
                 }
                 haveMissed = ShootAndCheckMiss(x, y);
-                if (isOnlyBots) Console.ReadLine();
+                if (!player1.isPlayer && !player2.isPlayer) Console.ReadLine();
                 if (haveMissed) (currentPlayer, notCurrentPlayer) = (notCurrentPlayer, currentPlayer);
                 Console.Clear();
             }
-        }
-
-
-        void Intro()
-        {
-            Console.WriteLine("Ships: " + fieldCells.ship);
-            Console.WriteLine("Broken ship: " + fieldCells.brokenShip);
-            Console.WriteLine("Place, where you have already shot, but missed: " + fieldCells.miss);
-            Console.WriteLine("Answer: first write a number representing height or y; after that write a letter, representing width or x");
-            Console.WriteLine("Both numbers and letters you can see when the game has started");
-            Console.WriteLine("Press either 0 or 1 or 2 for different modes; 0 - bot vs bot; 1 - you vs bot; 2 - you vs another player");
-        }
-
-
-        bool GetPlayMode()
-        {
-            string playModeInString = Console.ReadLine();
-            int.TryParse(playModeInString, out int playMode);
-            SetPlayMode(playMode);
-            Console.Clear();
-            if (playMode == 0) return true;
-            return false;
         }
 
         void SetPlayMode(int playMode)
@@ -99,7 +80,7 @@ namespace Noob_SeaBattle
             _ => (true, true)
         }; */
 
-        void ShowBothFields(Player currentPlayer)
+        void ShowBothFields()
         {
             Console.Write("   ");
             WriteThisLetter(width);
@@ -206,19 +187,23 @@ namespace Noob_SeaBattle
             return (x, y);
         }
 
+        int playerWonNumber;
         bool IsGameEnd()
         {
             if (player1.shipCount == 0)
             {
-                Console.WriteLine("Player2 won!");
+                playerWonNumber = 2;
                 return true;
             }
             if (player2.shipCount == 0)
             {
-                Console.WriteLine("Player1 won!");
+                playerWonNumber = 1;
                 return true;
             }
             return false;
         }
+
+        public int ReturnPlayerWon() =>
+            playerWonNumber;
     }
 }

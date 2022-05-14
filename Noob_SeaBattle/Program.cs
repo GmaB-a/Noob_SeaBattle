@@ -10,9 +10,19 @@ namespace Noob_SeaBattle
     {
         static void Main(string[] args)
         {
-            Game game = new Game();
-            game.Play();
-        }
+            Lobby lobby = new Lobby();
+            lobby.Intro();
+            lobby.GetPlayMode();
 
+            do
+            {
+                lobby.StartRound();
+                lobby.EndRound();
+                lobby.PrintScore();
+            } while (!lobby.DoesPlayerHave3Wins());
+
+            if(lobby.player1Wins == 3) Console.WriteLine("Player1 Won! Congrats");
+            else Console.WriteLine("Player2 Won! Congrats");
+        }
     }
 }

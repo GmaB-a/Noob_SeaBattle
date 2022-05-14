@@ -6,27 +6,23 @@ using System.Threading.Tasks;
 
 namespace Noob_SeaBattle
 {
-    internal class Player
+    public class Player
     {
         public char[,] field;
         public int shipCount;
         public bool isPlayer;
 
-        const int width = Game.width;
-        const int height = Game.height;
-        const int maxAmountOfShipCells = Game.maxAmountOfShipCells;
+        int width;
+        int height;
+        int maxAmountOfShipCells;
+
         Random rnd;
 
-        enum fieldCells
+        public void CreatePlayer(int widthFromGame, int heightFromGame, int maxAmountOfShipCellsFromGame)
         {
-            empty = Game.fieldCells.empty,
-            ship = Game.fieldCells.ship,
-            miss = Game.fieldCells.miss,
-            brokenShip = Game.fieldCells.brokenShip
-        }
-
-        public void CreatePlayer()
-        {
+            width = widthFromGame;
+            height = heightFromGame;
+            maxAmountOfShipCells = maxAmountOfShipCellsFromGame;
             rnd = new Random();
             field = CreateOneField();
             shipCount = maxAmountOfShipCells;
@@ -52,7 +48,7 @@ namespace Noob_SeaBattle
         {
             int x;
             int y;
-            for (int i = 0; i < Game.maxAmountOfShipCells; i++)
+            for (int i = 0; i < maxAmountOfShipCells; i++)
             {
                 do{
                     x = rnd.Next(0, width);
