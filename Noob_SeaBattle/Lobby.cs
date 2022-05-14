@@ -8,8 +8,11 @@ namespace Noob_SeaBattle
 {
     internal class Lobby
     {
+        int AmountOfWinsRequired = 3;
+
         public int player1Wins;
         public int player2Wins;
+
         Game game;
         int playMode;
 
@@ -60,7 +63,7 @@ namespace Noob_SeaBattle
 
         public bool DoesPlayerHave3Wins()
         {
-            if (player1Wins == 3 || player2Wins == 3) return true;
+            if (player1Wins == AmountOfWinsRequired || player2Wins == AmountOfWinsRequired) return true;
             return false;
         }
     }
