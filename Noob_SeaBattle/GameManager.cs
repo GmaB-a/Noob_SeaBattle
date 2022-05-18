@@ -16,10 +16,14 @@ namespace Noob_SeaBattle
             string answer = Console.ReadLine();
             switch (answer)
             {
-                case "log": Login(); break;
-                default: Register(); break;
+                case "log": 
+                    Login(); 
+                    break;
+                default: 
+                    Register(); 
+                    break;
             }
-            players = PDBS.GetData();
+            players = PDBS.DeserializeDictionary();
         }
 
         void Login()
@@ -36,6 +40,7 @@ namespace Noob_SeaBattle
                     Console.WriteLine("Type 'reg' to register or press Enter to try more");
                     string answer = Console.ReadLine();
                     if (answer == "reg") Register();
+                    else return;
                 }
                 Console.Clear();
             } while (playerData == null);

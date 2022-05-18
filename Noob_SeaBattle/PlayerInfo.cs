@@ -1,24 +1,42 @@
-﻿namespace Noob_SeaBattle
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Noob_SeaBattle
 {
-    internal class PlayerInfo
+    class PlayerInfo
     {
         int starterMMR = 500;
 
-        string login;
-        string password;
-        int mmr;
-        int wins;
-        int loses;
+        public string playerLogin;
+        public string playerPassword;
+        public int mmr;
+        public int wins = 0;
+        public int loses = 0;
 
-        public PlayerInfo CreateNewPlayer(string login, string password)
+        public PlayerInfo(string login, string password)
         {
-            PlayerInfo newPlayerInfo = new PlayerInfo();
-            newPlayerInfo.login = login;
-            newPlayerInfo.password = password;
-            newPlayerInfo.mmr = starterMMR;
-            newPlayerInfo.wins = 0;
-            newPlayerInfo.loses = 0;
-            return newPlayerInfo;
+            playerLogin = login;
+            playerPassword = password;
+            mmr = starterMMR;
+        }
+
+        public PlayerInfo()
+        {
+            playerLogin = RandomString(8);
+            playerPassword = RandomString(8);
+            mmr = starterMMR;
+        }
+
+        private Random random = new Random();
+
+        public string RandomString(int length)
+        {
+            string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            return new string(Enumerable.Repeat(chars, length)
+                .Select(s => s[random.Next(s.Length)]).ToArray());
         }
     }
 }

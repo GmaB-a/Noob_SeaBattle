@@ -10,24 +10,34 @@ namespace Noob_SeaBattle
 {
     class PlayerDataBaseSerializer
     {
-        XmlSerializer xmlSerializer = new XmlSerializer(typeof(Dictionary<string, PlayerInfo>));
-
-        string saveFileName = "players.xml";
-        public Dictionary<string, PlayerInfo> GetData()
+        public void SerializeDictionary(Dictionary<string, PlayerInfo> dictionary)
         {
-            using (FileStream fs = new FileStream(saveFileName, FileMode.OpenOrCreate))
+            using (FileStream fs = new FileStream("players.xml", FileMode.OpenOrCreate))
             {
-                Dictionary<string, PlayerInfo> playerInfos = xmlSerializer.Deserialize(fs) as Dictionary<string, PlayerInfo>;
-                return playerInfos;
+                List<PlayerInfo> items = new List<PlayerInfo>(dictionary.Count);
+                foreach (string login in dictionary.Keys)
+                {
+                    items.Add(new PlayerInfo(login, dictionary[login].playerPassword));
+                }
+                XmlSerializer serializer = new XmlSerializer(typeof(List<PlayerInfo>));
+                /*XmlSerializerNamespaces ns = new XmlSerializerNamespaces();
+                ns.Add("", ""); */
+                serializer.Serialize(fs, items);
             }
-            
         }
 
-        public void SerializeData(Dictionary<string, PlayerInfo> playerInfos)
+        public Dictionary<string, PlayerInfo> DeserializeDictionary()
         {
-            using (FileStream fs = new FileStream(saveFileName, FileMode.OpenOrCreate))
+            using (FileStream fs = new FileStream("players.xml", FileMode.OpenOrCreate))
             {
-                xmlSerializer.Serialize(fs, playerInfos);
+                Dictionary<string, PlayerInfo> dictionary = new Dictionary<string, PlayerInfo>();
+                XmlSerializer xs = new XmlSerializer(typeof(List<PlayerInfo>));
+                List<PlayerInfo> templist = (List<PlayerInfo>)xs.Deserialize(fs);
+                foreach (PlayerInfo PI in templist)
+                {
+                    dictionary.Add(PI.playerLogin, PI);
+                }
+                return dictionary;
             }
         }
     }
