@@ -16,13 +16,29 @@ namespace Noob_SeaBattle
         Game game;
         int playMode;
 
-        public void StartRound()
+        public void PlayLobby()
+        {
+            Intro();
+            GetPlayMode();
+
+            do
+            {
+                StartRound();
+                EndRound();
+                PrintScore();
+            } while (!DoesPlayerHave3Wins());
+
+            if (player1Wins == 3) Console.WriteLine("Player1 Won! Congrats");
+            else Console.WriteLine("Player2 Won! Congrats");
+        }
+
+        void StartRound()
         {
             game = new Game();
             game.Play(playMode);
         }
 
-        public void Intro()
+        void Intro()
         {
             Console.WriteLine("Ships: " + fieldCells.ship);
             Console.WriteLine("Broken ship: " + fieldCells.brokenShip);
@@ -32,14 +48,14 @@ namespace Noob_SeaBattle
             Console.WriteLine("Press either 0 or 1 or 2 for different modes; 0 - bot vs bot; 1 - you vs bot; 2 - you vs another player");
         }
 
-        public void GetPlayMode()
+        void GetPlayMode()
         {
             string playModeInString = Console.ReadLine();
             int.TryParse(playModeInString, out playMode);
             Console.Clear();
         }
 
-        public void EndRound()
+        void EndRound()
         {
             int playerWonNumber = game.ReturnPlayerWon();
             switch (playerWonNumber)
@@ -53,7 +69,7 @@ namespace Noob_SeaBattle
             }
         }
 
-        public void PrintScore()
+        void PrintScore()
         {
             Console.WriteLine("Player1 Wins : Player2 Wins");
             Console.WriteLine("      " + player1Wins + "      :     " + player2Wins + "      ");
@@ -61,7 +77,7 @@ namespace Noob_SeaBattle
             Console.Clear();
         }
 
-        public bool DoesPlayerHave3Wins()
+        bool DoesPlayerHave3Wins()
         {
             if (player1Wins == AmountOfWinsRequired || player2Wins == AmountOfWinsRequired) return true;
             return false;
