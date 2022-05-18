@@ -10,8 +10,8 @@ namespace Noob_SeaBattle
     {
         static void Main(string[] args)
         {
-            Lobby lobby = new Lobby();
-            lobby.PlayLobby();
+            GameManager gameManager = new GameManager();
+            gameManager.Intro();
         }
     }
 }
