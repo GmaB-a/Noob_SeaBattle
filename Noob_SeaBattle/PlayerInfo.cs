@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Noob_SeaBattle
 {
-    class PlayerInfo
+    public class PlayerInfo
     {
         int starterMMR = 500;
 

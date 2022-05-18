@@ -10,77 +10,62 @@ namespace Noob_SeaBattle
     {
         int AmountOfWinsRequired = 3;
 
-        public int player1Wins;
-        public int player2Wins;
+        public Player player1 = new Player();
+        public Player player2 = new Player();
 
         Game game;
         int playMode;
 
-        public void PlayLobby()
+        public void PlayLobby(int currentPlayMode, PlayerInfo player1, PlayerInfo player2)
         {
-            Intro();
-            GetPlayMode();
-
+            playMode = currentPlayMode;
             do
             {
-                StartRound();
-                EndRound();
+                PlayRound();
                 PrintScore();
             } while (!DoesPlayerHave3Wins());
 
-            if (player1Wins == 3) Console.WriteLine("Player1 Won! Congrats");
-            else Console.WriteLine("Player2 Won! Congrats");
+            if (player1.wins == 3) AddWinAndChangeMMR(player1, player2);
+            else AddWinAndChangeMMR(player2, player1);
+
+            SavePlayerInfos(player1, player2);
         }
 
-        void StartRound()
+        void PlayRound()
         {
             game = new Game();
-            game.Play(playMode);
+            game.Play(playMode, player1, player2);
+            (player1, player2) = game.ReturnPlayers();
         }
 
-        void Intro()
-        {
-            Console.WriteLine("Ships: " + fieldCells.ship);
-            Console.WriteLine("Broken ship: " + fieldCells.brokenShip);
-            Console.WriteLine("Place, where you have already shot, but missed: " + fieldCells.miss);
-            Console.WriteLine("Answer: first write a number representing height or y; after that write a letter, representing width or x");
-            Console.WriteLine("Both numbers and letters you can see when the game has started");
-            Console.WriteLine("Press either 0 or 1 or 2 for different modes; 0 - bot vs bot; 1 - you vs bot; 2 - you vs another player");
-        }
-
-        void GetPlayMode()
-        {
-            string playModeInString = Console.ReadLine();
-            int.TryParse(playModeInString, out playMode);
-            Console.Clear();
-        }
-
-        void EndRound()
-        {
-            int playerWonNumber = game.ReturnPlayerWon();
-            switch (playerWonNumber)
-            {
-                case 1:
-                    player1Wins++;
-                    break;
-                case 2:
-                    player2Wins++;
-                    break;
-            }
-        }
 
         void PrintScore()
         {
             Console.WriteLine("Player1 Wins : Player2 Wins");
-            Console.WriteLine("      " + player1Wins + "      :     " + player2Wins + "      ");
+            Console.WriteLine("      " + player1.wins + "      :     " + player2.wins + "      ");
             Console.ReadLine();
             Console.Clear();
         }
 
         bool DoesPlayerHave3Wins()
         {
-            if (player1Wins == AmountOfWinsRequired || player2Wins == AmountOfWinsRequired) return true;
+            if (player1.wins == AmountOfWinsRequired || player2.wins == AmountOfWinsRequired) return true;
             return false;
+        }
+
+        void AddWinAndChangeMMR(PlayerInfo winner, PlayerInfo loser)
+        {
+            winner.wins++;
+            loser.loses++;
+            winner.mmr += 10;
+            loser.mmr -= 10;
+        }
+
+        private void SavePlayerInfos(PlayerInfo player1, PlayerInfo player2)
+        {
+            PlayerDataBaseSerializer PDBS = new PlayerDataBaseSerializer();
+            PDBS.SaveProfile(player1);
+            PDBS.SaveProfile(player2);
         }
     }
 }

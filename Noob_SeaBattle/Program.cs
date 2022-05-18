@@ -11,7 +11,7 @@ namespace Noob_SeaBattle
         static void Main(string[] args)
         {
             GameManager gameManager = new GameManager();
-            gameManager.Intro();
+            gameManager.PlayGame();
         }
     }
 }

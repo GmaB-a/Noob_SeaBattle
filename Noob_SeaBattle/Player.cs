@@ -11,6 +11,8 @@ namespace Noob_SeaBattle
         public char[,] field;
         public int shipCount;
         public bool isPlayer;
+        public PlayerInfo thisPlayerInfo;
+        public int wins;
 
         int width;
         int height;

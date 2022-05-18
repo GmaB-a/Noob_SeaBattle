@@ -10,34 +10,19 @@ namespace Noob_SeaBattle
 {
     class PlayerDataBaseSerializer
     {
-        public void SerializeDictionary(Dictionary<string, PlayerInfo> dictionary)
+        private XmlSerializer Serializer = new XmlSerializer(typeof(PlayerInfo));
+        public void SaveProfile(PlayerInfo player)
         {
-            using (FileStream fs = new FileStream("players.xml", FileMode.OpenOrCreate))
-            {
-                List<PlayerInfo> items = new List<PlayerInfo>(dictionary.Count);
-                foreach (string login in dictionary.Keys)
-                {
-                    items.Add(new PlayerInfo(login, dictionary[login].playerPassword));
-                }
-                XmlSerializer serializer = new XmlSerializer(typeof(List<PlayerInfo>));
-                /*XmlSerializerNamespaces ns = new XmlSerializerNamespaces();
-                ns.Add("", ""); */
-                serializer.Serialize(fs, items);
-            }
+            using (FileStream stream = new FileStream($"{player.playerLogin}.xml", FileMode.OpenOrCreate))
+                Serializer.Serialize(stream, player);
         }
 
-        public Dictionary<string, PlayerInfo> DeserializeDictionary()
+        public PlayerInfo GetProfileInfo(string login)
         {
-            using (FileStream fs = new FileStream("players.xml", FileMode.OpenOrCreate))
+            using (FileStream fs = new FileStream($"{login}.xml", FileMode.Open))
             {
-                Dictionary<string, PlayerInfo> dictionary = new Dictionary<string, PlayerInfo>();
-                XmlSerializer xs = new XmlSerializer(typeof(List<PlayerInfo>));
-                List<PlayerInfo> templist = (List<PlayerInfo>)xs.Deserialize(fs);
-                foreach (PlayerInfo PI in templist)
-                {
-                    dictionary.Add(PI.playerLogin, PI);
-                }
-                return dictionary;
+                PlayerInfo profile = (PlayerInfo)Serializer.Deserialize(fs);
+                return profile;
             }
         }
     }

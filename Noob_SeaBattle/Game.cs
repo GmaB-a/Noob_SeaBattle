@@ -21,15 +21,17 @@ namespace Noob_SeaBattle
         public int maxAmountOfShipCells;
         string letters = "abcdefghijklmnopqrstuvwxyz";
 
-        Player player1 = new Player();
-        Player player2 = new Player();
+        Player player1;
+        Player player2;
         Player currentPlayer;
         Player notCurrentPlayer;
 
         Random rnd = new Random();
 
-        public void Play(int gameMode)
+        public void Play(int gameMode, Player newPlayer1, Player newPlayer2)
         {
+            player1 = newPlayer1;
+            player2 = newPlayer2;
             maxAmountOfShipCells = 1 + (width * height) / 5;
             player1.CreatePlayer(width, height, maxAmountOfShipCells);
             Console.WriteLine("Press Enter to Start Game");
@@ -187,23 +189,22 @@ namespace Noob_SeaBattle
             return (x, y);
         }
 
-        int playerWonNumber;
         bool IsGameEnd()
         {
             if (player1.shipCount == 0)
             {
-                playerWonNumber = 2;
+                player2.wins++;
                 return true;
             }
             if (player2.shipCount == 0)
             {
-                playerWonNumber = 1;
+                player1.wins++;
                 return true;
             }
             return false;
         }
 
-        public int ReturnPlayerWon() =>
-            playerWonNumber;
+        public (Player, Player) ReturnPlayers() =>
+            (player1, player2);
     }
 }
